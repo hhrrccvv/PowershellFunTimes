@@ -1,4 +1,4 @@
-﻿#Imports Derksens textbox entry gui/online checker
+#Imports Derksens textbox entry gui/online checker
 if (-Not (Get-Module SD36.IMS.PowerShell.Utility)){
     Import-Module '\\info-fs1\dev\Scripts\PowerShellModules\SD36.IMS.PowerShell.Utility'
     }
@@ -55,23 +55,51 @@ if($_continueChoice -like "*y*"){
     if($_restartChoice -like "*y*"){
         
         $_delayChoice = Read-Host -Prompt "`nWould you like to restart the computers with a delay between them? The first will restart immediately, followed by your chosen delay before the next one. (y/n)"
+
+        $_counterB = 0
+
+        $_percentCompleteB = ($_counterB / $_onlineList.Count) * 100
         
             if($_delayChoice -like "*y*"){
+                do{
+                    $_delayTime = Read-Host -Prompt "`nEnter your desired delay (in seconds)"
 
-                $_delayTime = Read-Host -Prompt "`nEnter your desired delay (in seconds)"
+                    if($_delayTime -ge 60){
+                        $_convertedDelay = [timespan]::FromSeconds($_delayTime)
+                        $_convertedDelay2 = ("{0:mm\:ss}" -f $_convertedDelay)
+                    }
+                    else{
+                        $_convertedDelay = $_delayTime
+                    }
+
+                    $_delayTimeConfirm = Read-Host -Prompt "You've chosen a delay of $_convertedDelay2. Is this right?"
+
+                }while($_delayTimeConfirm -notlike "*y*")
 
                 Read-Host -Prompt "`nHit 'Enter' to begin restarting"
 
                 foreach($_device in $_onlineList){
+                    Write-Progress -Activity "Restarting computers" -Status $_device -PercentComplete $_percentCompleteB
+
                     Restart-Computer -ComputerName $_device -Force -Verbose
+
                     Start-Sleep -s $_delayTime
+
+                    $_counterB++
                 }
             }
             else{
                 foreach($_device in $_onlineList){
+
+                    Write-Progress -Activity "Restarting computers" -Status $_device -PercentComplete $_percentCompleteB
+
                     Restart-Computer -ComputerName $_device -Force -Verbose
+
+                    $_counterB++
                 }
             }
+
+            Write-Progress -Activity "Restarting computers" -Status "Ready" -Completed
     }
     else{
         Write-Host "`nRemember, until they're imaged, the devices will try to PXE on every boot."

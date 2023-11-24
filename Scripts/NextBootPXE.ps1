@@ -44,7 +44,7 @@ if($_continueChoice -like "*y*"){
 
                                                             Import-Module DellBIOSProvider -Force #Ensures the Dell module gets initialized
 
-                                                            Set-Dell1stBootdevice -Bootdevice "NIC" -Password "tintpyal4" -Verbose #Sets the boot order to boot from the NIC
+                                                            Set-Dell1stBootdevice -Bootdevice "NIC" -Password "tintpyal4" #Sets the boot order to boot from the NIC
                                                             }
         }
         else{
@@ -132,8 +132,21 @@ if($_continueChoice -like "*y*"){
             Write-Progress -Activity "Restarting computers" -Status "Ready" -Completed
     }
     else{
-        #Reminds the user they've made a change
-        Write-Host "`nRemember, until they're imaged, the devices will try to PXE on every boot."
+        #Checks if the user wants to revert the changes
+        $_revertChoice = Read-Host -Prompt "Since you aren't restarting, did you want to revert the changes? (y/n)"
+
+        #Confirms the user wants to revert the changes
+        if($_revertChoice -like "*y*"){
+            #Loops through the online computers
+            foreach($_item in $_onlineList){
+                Invoke-command -ComputerName $_item -ScriptBlock {Set-Dell1stBootdevice -Bootdevice "Windows Boot Manager" -Password "tintpyal4"} #Sets the boot order to boot from the hard drive
+                Write-Host "$_item reverted to normal boot" -ForegroundColor Green
+            }
+        }
+        else{
+            #Reminds the user they've made a change
+            Write-Host "`nRemember, until they're imaged, the devices will try to PXE on every boot."
+        }
     }
 }
 

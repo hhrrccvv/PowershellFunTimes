@@ -18,16 +18,6 @@ if($_continueChoice -like "*y*"){
     $_offlineList = @() #Holds the unreachable computers
     $_total = $_computerList.Count #Contains the number of computers to be hit
     $_counterA = 0 #Counter for iteration
-    
-    $_imageType = Read-Host -Prompt "`nAre you imaging with the USB key method? (y/n)"
-
-    if($_imageType -like "*y*"){
-        Write-Host "`nYou'll have to restart the computer(s) with the USB attached. The device won't see it as a boot option otherwise."
-
-        #Add a restart with wait?
-
-        Read-Host -Prompt "`nPress 'Enter' to continue"
-    }
 
     #Loops through the chosen devices
     foreach($_pc in $_computerList){
@@ -54,12 +44,8 @@ if($_continueChoice -like "*y*"){
 
                                                                 Import-Module DellBIOSProvider -Force #Ensures the Dell module gets initialized
 
-                                                                if($_imageType -like "*y*"){
-                                                                    Set-Dell1stBootdevice -Bootdevice "UEFI" -Password "tintpyal4" #Sets the boot order to boot from the USB
-                                                                }
-                                                                else{
-                                                                    Set-Dell1stBootdevice -Bootdevice "NIC" -Password "tintpyal4" #Sets the boot order to boot from the NIC
-                                                                }
+                                                                Set-Dell1stBootdevice -Bootdevice "NIC" -Password "tintpyal4" #Sets the boot order to boot from the NIC
+                                                                
                                                             }
         }
         else{

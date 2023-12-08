@@ -19,6 +19,10 @@ if($_continueChoice -like "*y*"){
     $_total = $_computerList.Count #Contains the number of computers to be hit
     $_counterA = 0 #Counter for iteration
 
+    #$_SecureCred = Get-Credential -Message "Please enter the BIOS password" -UserName "SD36"
+    #$_plain = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($_SecureCred.Password)
+    #$_plaintext = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($_plain)
+
     #Loops through the chosen devices
     foreach($_pc in $_computerList){
         
@@ -45,6 +49,8 @@ if($_continueChoice -like "*y*"){
                                                                 Import-Module DellBIOSProvider -Force #Ensures the Dell module gets initialized
 
                                                                 Set-Dell1stBootdevice -Bootdevice "NIC" -Password "tintpyal4" #Sets the boot order to boot from the NIC
+
+                                                                #Set-Dell1stBootdevice -Bootdevice "NIC" -Password "$_plaintext" #Sets the boot order to boot from the NIC
                                                                 
                                                             }
         }
@@ -130,6 +136,7 @@ if($_continueChoice -like "*y*"){
 
                     #Loops through the devices restarting them with no delay
                     foreach($_device in $_onlineList){
+                        $_percentCompleteB = ($_counterB / $_onlineList.Count) * 100
 
                         Write-Progress -Activity "Restarting computers..." -Status $_device -PercentComplete $_percentCompleteB
 
